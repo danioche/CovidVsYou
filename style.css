@@ -1,0 +1,97 @@
+/*
+** Main stylesheet.
+*/
+
+body {
+}
+
+/* 
+** Grid layout 
+*/
+.headLeft { grid-area: headerLeft; } 
+.headCenter  { grid-area: headerCenter; }
+.headRight { grid-area: headerRight; }
+.main { grid-area: main; }
+.footer { grid-area: footer; }
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    'headerLeft headerCenter headerRight'
+    'main main main'
+    'footer footer footer';
+}
+
+.grid-container > div {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 12px;
+  border: 1px solid red;
+}
+
+#actionBox,
+#dateBox,
+#searchBox {
+    height: 40px;
+    background-color: #aaa;
+    padding: 3px;
+
+}
+
+#actionBox{
+    text-align: left;
+}
+#searchBox{
+    text-align: right;
+}
+
+/* Main Actions */
+
+/* Buttons */
+input {
+    border: 1px solid #222;
+    background-color: black;
+    color: white;
+    text-decoration: bold;
+    border-radius: 0px;
+    padding:10px;
+    margin: 0px;
+}
+input:hover{
+    background-color: #ccc;
+}
+
+/* Search */
+/* Style the search field */
+form.example input[type=text] {
+  padding: 8px;
+  font-size: 12px;
+  border: 1px solid grey;
+  width: 50%;
+  background: #f1f1f1;
+  margin: 0px;
+  color: #222;
+}
+
+/* Style the submit button */
+form.example button {
+  width: 80px;
+  padding: 10px;
+  margin-left: -85px;
+  background: #222;
+  color: white;
+  font-size: 12px;
+  border: 1px solid grey;
+  border-left: none; /* Prevent double borders */
+  cursor: pointer;
+}
+
+form.example button:hover {
+  background: #0b7dda;
+}
+
+/* Clear floats */
+form.example::after {
+  content: "";
+  clear: both;
+  display: table;
+}

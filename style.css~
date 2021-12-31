@@ -1,0 +1,54 @@
+/*
+** Main stylesheet.
+*/
+
+body {
+}
+
+/* Grid layout */
+.headLeft { grid-area: headerLeft; } 
+.headCenter  { grid-area: headerCenter; }
+.headRight { grid-area: headerRight; }
+.main { grid-area: main; }
+.footer { grid-area: footer; }
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    'headerLeft headerCenter headerRight'
+    'main main main'
+    'footer footer footer';
+}
+
+.grid-container > div {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 30px;
+}
+
+input {
+    border: 1px solid #222;
+    background-color: black;
+    color: white;
+    text-decoration: bold;
+    border-radius: 0px;
+    padding:10px;
+    margin: 0px;
+}
+
+input:hover{
+    background-color: #ccc;
+}
+
+#galeryContainer{
+    
+    float:left;
+    z-index: 1;
+}
+
+#barHeader{
+
+    background-color: #222;
+    color: white;
+    border-radius: 4px;
+    width: 100%;
+}

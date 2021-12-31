@@ -1,0 +1,174 @@
+<head>
+  <!-- Including the main Graph library -->
+  <!--script src="https://d3js.org/d3.v7.min.js"></script-->
+  <script src="https://d3js.org/d3.v6.js"></script>
+  
+  
+  <!-- Icon library -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <!-- Style -->
+  <link rel="stylesheet" href="style.css">
+
+  <script language="javascript">
+    /**
+     *  Mainly utils in javascript - old fashion
+     */
+    
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const months = ["January", "February", "March",
+		    "April", "May","June",
+		    "July", "August", "September",
+		    "October","November", "December"];
+
+    function lead0s( num ){ return ( num<=9? "0"+num:num ); }
+    function datetime2str( ldt ){ return (
+	days[ldt.getDay()] + " " +
+	    months[ldt.getMonth()] + " " + ldt.getDate() +
+	    " " + lead0s(ldt.getHours()) +
+	    ":" + lead0s(ldt.getMinutes()) );
+    } 
+    function date2str( ldt ){ return (
+	days[ldt.getDay()] + " " +
+	    months[ldt.getMonth()] + " " + ldt.getDate());
+    }     
+    function printDate(){
+	var dt= new Date();
+	var e=document.getElementById("dateBox");
+	
+	e.innerHTML= "<p>&#8986; "+ datetime2str(dt) + "</p>";
+    }
+    function render(){
+	printDate();
+    }    
+
+    // Timers and Event Listeners
+    const clockTimer =  setInterval( printDate, 60000 );
+    
+  </script>
+</head>
+
+<body onload="render();">
+
+  <div id="mainContainer" class="grid-container">
+    <div class="headLeft">
+      <div id="actionBox">
+	<form action="return false;">
+	  <input id="btnCovid" type="button" value="CoVid" /><input id="btnPhotos" type="button" value="Photos" />
+	</form>
+      </div>
+    </div>
+    <div class="headCenter">
+      <div id="dateBox">I'm the Clock</div>
+    </div>
+    <div class="headRight">
+      <div id="searchBox">
+	<form class="example" action="action_page.php">
+	  <input type="text" placeholder="Search..." name="search">
+	  <button type="submit"><i class="fa fa-search"></i></button>
+	</form>
+      </div>
+    </div>    
+    <div id="graphContainer" class="main">
+      I'm the Graph Container
+      <div id="galeryContainer">
+	I'm the galery Container
+      </div>
+    </div>
+    <div id="footContainer" class="footer">
+      &nbsp;
+    </div>
+  </div>
+
+  <!-- Graph Loading -->
+  <script language="javascript">
+
+    // set the dimensions and margins of the graph
+    const margin = {top: 30, right: 30, bottom: 70, left: 60},
+	  width = 1624 - margin.left - margin.right,
+	  height = 500 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    const svg = d3.select("#graphContainer")
+	  .append("svg")
+	  .attr("width", width + margin.left + margin.right)
+	  .attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+	  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    
+    // Parse the Data
+    d3.csv("casos_tecnica_ccaa_totales_fecha.csv",
+	d => {
+	    return {
+		fecha: d3.timeParse("%Y-%m-%d")(d.fecha),
+		num_casos : d.num_casos
+            }
+	}).then(
+	    
+	function(data) {
+	    
+	    // X axis
+	    const x = d3.scaleTime()
+		  .domain( d3.extent(data, d => d.fecha ))
+		  .range([ 0, width ])
+	    svg.append("g")
+		.attr("transform", `translate(0, ${height})`)
+		.call(d3.axisBottom(x))
+
+	    // Add Y axis
+	    const y = d3.scaleLinear()
+		  .domain([0, 60000])
+		  .range([ height, 0]);
+	    svg.append("g")
+		.call(d3.axisLeft(y));
+
+	    // Tooltip
+	    const tooltip = d3.select("#graphContainer")
+		  .append("div")
+		  .style("position", "absolute")
+		  .style("visibility", "hidden")
+		  .style("opacity", 0)
+		  .attr("class", "tooltip")
+		  .style("background-color", "white")
+		  .style("border", "solid")
+		  .style("border-width", "1px")
+		  .style("border-radius", "5px")
+		  .style("padding", "10px");
+	    
+	    const mouseover = function(event, d) {
+		tooltip
+		    .style("visibility", "visible")
+		    .style("opacity", 1)
+	    }
+
+	    const mousemove = function(event, d) {
+		tooltip
+		    .html( date2str(d.fecha) + ": " + d.num_casos)
+		    .style("left", (event.pageX) + "px")
+		    .style("top", (event.pageY) + "px");
+	    }
+
+	    // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+	    const mouseleave = function(event,d) {
+		tooltip
+		    .style("visibility","hidden");
+	    }
+	    
+	    // Bars
+	    svg.selectAll("myBar")
+		.data(data)
+		.join("rect")
+		.attr("x", d => x(d.fecha))
+		.attr("y", d => y(d.num_casos))
+		.attr("height", d => height - y(d.num_casos))
+	        .attr("width", 1 )
+		.attr("fill", "blue")
+		.on("mouseover", mouseover)
+		.on("mousemove", mousemove)
+		.on("mouseleave", mouseleave)
+	})
+    
+  </script>
+
+</body>

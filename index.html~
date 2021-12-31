@@ -1,0 +1,55 @@
+<head>
+  <!-- Including the main library -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+   <script language="javascript">
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+     const months = ["January", "February", "March",
+		     "April", "May","June",
+		     "July", "August", "September",
+		     "October","November", "December"];
+    
+    function printDate(){
+	var dt= new Date();
+	var e=document.getElementById("dateBox");
+	
+	e.innerHTML= "<p>&#8986; "+ days[dt.getDay()] + " " +
+	    months[dt.getMonth()] + " " + dt.getDate() +
+	    " " + dt.getHours() + ":" + dt.getMinutes() +"</p>";
+
+	return true;
+    }
+
+    function render(){
+	printDate();
+    }    
+
+     
+  </script>
+ 
+</head>
+<body>
+
+  <div id="mainContainer" class="grid-container">
+    <div class="headLeft">
+      <form action="return false;">
+	<input id="btnCovid" type="button" value="CoVid" /><input id="btnPhotos" type="button" value="Photos" />
+      </form>
+    </div>
+    <div class="headCenter">
+      <div id="dateBox">I'm the Clock</div>
+    </div>
+    <div class="headRight">
+      <div id="searchBox">I'm the search Box</div>
+    </div>
+    <div id="graphContainer" class="main">
+      I'm the Graph Container
+      <div id="galeryContainer">
+	I'm the galery Container
+      </div>
+    </div>
+    <div id="footContainer" class="footer">
+      &nbsp;
+    </div>
+  </div>
+</body>
