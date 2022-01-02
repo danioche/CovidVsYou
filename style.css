@@ -23,9 +23,9 @@ body {
 
 .grid-container > div {
   text-align: center;
-  padding: 20px 0;
+  padding: 0px 0;
   font-size: 12px;
-  border: 1px solid red;
+  //border: 1px solid red;
 }
 
 #actionBox,
@@ -43,7 +43,20 @@ body {
 #searchBox{
     text-align: right;
 }
+#dateBox{
+    font-size: 14px;
+}
 
+#graphContainer{
+    padding-top: 20px;
+}
+
+#footContainer{
+    background-color: #eee;
+    height: 100px;
+    margin:0px;
+    padding: 0px !important;
+}
 /* Main Actions */
 
 /* Buttons */

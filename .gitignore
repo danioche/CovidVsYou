@@ -1,0 +1,8 @@
+#
+# Ignore the following parts of the project
+#
+photos/*
+node_modules
+# ignoring back-up files
+*~
+

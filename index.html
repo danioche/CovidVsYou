@@ -1,16 +1,31 @@
 <head>
+  <title>Covid versus You</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="Covid versus You. How you survived/lived with the virus.">
+  <meta name="keywords" content="HTML, CSS, JavaScript">
+  <meta name="author" content="danioche">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
   <!-- Including the main Graph library -->
   <!--script src="https://d3js.org/d3.v7.min.js"></script-->
   <script src="https://d3js.org/d3.v6.js"></script>
-  
-  
+
+   
   <!-- Icon library -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   
   <!-- Style -->
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style-photos.css">
+  
 
+  <!-- Utils JS --> 
   <script language="javascript">
+
+    // Array for Searching
+    var arrayDictDates = [];
+    var arrayIMGObj = [];
+    
     /**
      *  Mainly utils in javascript - old fashion
      */
@@ -26,12 +41,15 @@
 	days[ldt.getDay()] + " " +
 	    months[ldt.getMonth()] + " " + ldt.getDate() +
 	    " " + lead0s(ldt.getHours()) +
-	    ":" + lead0s(ldt.getMinutes()) );
-    } 
+	    ":" + lead0s(ldt.getMinutes())
+    );} 
     function date2str( ldt ){ return (
 	days[ldt.getDay()] + " " +
-	    months[ldt.getMonth()] + " " + ldt.getDate());
-    }     
+	    months[ldt.getMonth()] + " " + ldt.getDate()
+    );}
+    function date2longstr( ldt ){ return(
+	ldt.getFullYear()+""+lead0s(ldt.getMonth()+1)+""+lead0s(ldt.getDate())
+    );}
     function printDate(){
 	var dt= new Date();
 	var e=document.getElementById("dateBox");
@@ -41,15 +59,53 @@
     function render(){
 	printDate();
     }    
+    
+    function movePhoto( lx, ly ){
+	var e=document.getElementById("photoHolder");
+	e.style="visibility:visible;left: "+eval(lx-160)+"px;"; // top:"+ly+"px;";
+    }
 
+    function hidePhoto(){
+	var e=document.getElementById("photoHolder");
+	var i=document.getElementById("imgPlaceHolder");
+	var t=document.getElementById("photoText");
+	e.style="visibility:hidden;";
+	i.src="";
+	t.innerHTML=" No Photo ";
+    }
+    
+    function searchPhoto( ldate ){
+	var sDate=date2longstr(ldate);
+	var e=document.getElementById("imgPlaceHolder");
+	var t=document.getElementById("photoText");
+	var e2;
+	var sImgId=arrayIMGObj[ arrayDictDates[ sDate+"" ] ];
+
+	console.log("Searchig photos from "+ sDate );
+
+	if (sImgId!=undefined){
+	    console.log("Encontrada foto en esta fecha!:"+ sImgId );
+	    try{
+		e2=document.getElementById( sImgId );
+		console.log("Voy a cambiar "+ e.src + " por "+ e2.src);
+		e.src=e2.src;
+		t.innerHTML = "Photo: "+ e2.src;
+		
+	    }catch(myerr){
+		console.log("Error or not found: "+myerr.message);
+	    }    
+	}
+	
+    }
+    
     // Timers and Event Listeners
     const clockTimer =  setInterval( printDate, 60000 );
-    
   </script>
 </head>
 
-<body onload="render();">
-
+<body>
+  
+  <!-- Main Containers -->
   <div id="mainContainer" class="grid-container">
     <div class="headLeft">
       <div id="actionBox">
@@ -70,19 +126,25 @@
       </div>
     </div>    
     <div id="graphContainer" class="main">
-      I'm the Graph Container
       <div id="galeryContainer">
-	I'm the galery Container
+	<div class="polaroid" id="photoHolder">
+	  <img id="imgPlaceHolder" src="" alt="" style="width:100%">
+	  <div id="photoText" class="photoText">
+	    <p>blah blah</p>
+	  </div>
+	</div>
       </div>
     </div>
     <div id="footContainer" class="footer">
-      &nbsp;
+      <div id="hideIMGs" style="opacity:1;">
+	<p id="loading" style="opacity:1;">Loading photos...</p>
+      </div>
     </div>
   </div>
 
-  <!-- Graph Loading -->
+  <!-- Graph Resources and Data Loading -->
   <script language="javascript">
-
+    
     // set the dimensions and margins of the graph
     const margin = {top: 30, right: 30, bottom: 70, left: 60},
 	  width = 1624 - margin.left - margin.right,
@@ -98,7 +160,7 @@
 
     
     // Parse the Data
-    d3.csv("casos_tecnica_ccaa_totales_fecha.csv",
+    d3.csv("data/casos_tecnica_ccaa_totales_fecha.csv",
 	d => {
 	    return {
 		fecha: d3.timeParse("%Y-%m-%d")(d.fecha),
@@ -118,7 +180,7 @@
 
 	    // Add Y axis
 	    const y = d3.scaleLinear()
-		  .domain([0, 60000])
+		  .domain([0, 70500])
 		  .range([ height, 0]);
 	    svg.append("g")
 		.call(d3.axisLeft(y));
@@ -135,24 +197,25 @@
 		  .style("border-width", "1px")
 		  .style("border-radius", "5px")
 		  .style("padding", "10px");
-	    
+
+	    // Mouse events
 	    const mouseover = function(event, d) {
 		tooltip
 		    .style("visibility", "visible")
 		    .style("opacity", 1)
 	    }
-
 	    const mousemove = function(event, d) {
 		tooltip
-		    .html( date2str(d.fecha) + ": " + d.num_casos)
+		    .html( date2str(d.fecha) + ": " + d.num_casos + "")
 		    .style("left", (event.pageX) + "px")
 		    .style("top", (event.pageY) + "px");
+		movePhoto( (event.pageX), (event.pageY) );
+		searchPhoto( d.fecha );
 	    }
-
-	    // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
 	    const mouseleave = function(event,d) {
 		tooltip
 		    .style("visibility","hidden");
+		hidePhoto();
 	    }
 	    
 	    // Bars
@@ -170,5 +233,59 @@
 	})
     
   </script>
+  
+  <!-- Photos Object. !Check Readme: Photos object needs to be generated !  -->
+  <script src="./photos.js"></script>
 
+  <!-- Exif - js library -->
+  <!-- !Check Readme: you must have this installed: npm install exif-js --save ! -->
+  <script type="text/javascript" src="node_modules/exif-js/exif.js"></script>
+  <script>
+    "use strict";
+    window.onload=getExif;
+
+    var arrayIMG = Photos().list;
+
+    // We create and stack all img objects on hidden layer 
+    var e=document.getElementById("hideIMGs");
+    
+    for(let i=0; i<arrayIMG.length; i++){
+	
+	var x = document.createElement("IMG");
+	arrayIMGObj[ i ] = "img"+i;
+	x.setAttribute("src", arrayIMG[i]);
+	x.setAttribute("id", "img"+i);
+	x.setAttribute("title", "Hey!" );
+	x.setAttribute("name", "");
+	x.setAttribute("width", "50px");
+	x.setAttribute("height", "50px");
+	e.appendChild(x);
+    }
+    
+    function getExif() {
+
+	render();
+	for(let i=0; i<arrayIMG.length; i++){
+            var img = document.getElementById("img"+i);
+	    EXIF.getData(img, function() {
+		var date = EXIF.getTag(this, "DateTimeDigitized");
+		var sDate = date.substring(0,10);
+		sDate = sDate.replace(/\:/g,"");
+		this.title = " Date: " + date;
+		
+		arrayDictDates[ sDate+"" ] = i;
+
+		
+		console.log("Array Dict guardamos fecha "+ sDate +
+			    "que pertenece a la imagen " + arrayDictDates[ sDate+"" ]);
+		console.log(sDate);
+            });
+	}
+	// Loading finish.
+	var x=document.getElementById("loading");
+	// x.style="opacity:0;";
+	x.innerHTML = "Your photos, your life:";
+    }
+  </script>
+  <!-- Fin -->
 </body>
