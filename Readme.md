@@ -1,27 +1,48 @@
 # CovidVsYou
 
-Covid cases data vs. you.  What was you doing during the world was
+Covid cases data vs. you.  
+
+What was you doing during the world was
 collapsing due the fucking virus?  You were at Spain? Nice
-place. Celebrate that you are still here and review your moments
+place. 
+
+Celebrate that you are still here and review your moments
 against the pandemic curve at Spain. 
 
-Two main datasets:
+During this Christmas I was totally stunned with the data of the
+pandemic and probably this project was also like a therapy to me.
+
+Let's get back to the project itself. Two main datasets:
 * Covid Cases vs. your Photos
+
+The project is mainly an exercise on:
+ - How to build graphs from a CSV file in runtime
+ - How to extract the meta-information from photos
+ - Try to link both visually
 
 ## Description
 
 A simple project to visualize the Covid cases and how you cope this
-pandemic thanks to your photos. It's kind of annual overview, but this
-will depend on you.
+pandemic thanks to your photos. For me was a small project that made
+me think on what happened in 2021, kind of annual review/overview.
 
 ## Getting Started
 
+If you are interested to play with this.
+
 ### Dependencies
 
-* npm installed
-* 3d.js (transparent for the user)
-* Awesome Fonts (transparent for the user)
-* exif-js (needs to be installed )
+The project is just one HTML file with some CSS and some Javascript
+linked. The project by itself will not send any data or store any data.
+
+* node and npm installed
+* 3d.js (does not requires installation)
+* Awesome Fonts (also a dependency that is just for icons)
+* exif-js (needs to be installed with npm, is explained below)
+* Covid data (the data I got is from Spain, you could modify this easily)
+* Your photos: Once you will download this repository localy you
+  should place your photos. The only information extracted will be the
+  date (metadata /DateTimeDigitized/) and it won't be stored anywhere.
 
 ### Installing
 
@@ -50,6 +71,11 @@ Now it's ready to be visualized.
 
 ### Executing program
 
+* Execute the bash script to generate the array of the photos
+
+```sh
+	photos2js.sh
+```
 
 * Execute a http server
 
@@ -70,8 +96,8 @@ You should have no major issues but please take into account these limitations:
 
 ## Author
 
-ex. Daniel Pedroche   
-ex. [@danioche](https://twitter.com/danioche)
+Daniel Pedroche
+[@danioche](https://twitter.com/danioche)
 
 
 ## Version History
@@ -81,14 +107,22 @@ ex. [@danioche](https://twitter.com/danioche)
 
 ### TODOs
 
+* Add Help
+  * Add Actions on top bar
 * Add responsiveness
 * Add Browser checks or extra support (not fully tested a part from FF 94.0)
 * Add Windows support... (photo array generation mainly, the rest is cross platform)
 
 ## License
 
-TODO
+ This work is licensed under [CC BY-NC 4.0](http://creativecommons.org/licenses/by-nc/4.0/)
 
 ## Acknowledgments
 
 Thanks to: D3.js, W3schools, Exif project.
+
+* D3 Web page https://d3js.org/ 
+* D3 Tutorials at https://www.d3-graph-gallery.com/index.html
+* Exif-js project at https://github.com/exif-js/exif-js 
+
+

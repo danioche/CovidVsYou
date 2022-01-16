@@ -75,7 +75,7 @@ input:hover{
 
 /* Search */
 /* Style the search field */
-form.example input[type=text] {
+div.example input[type=text] {
   padding: 8px;
   font-size: 12px;
   border: 1px solid grey;
@@ -86,7 +86,7 @@ form.example input[type=text] {
 }
 
 /* Style the submit button */
-form.example button {
+div.example button {
   width: 80px;
   padding: 10px;
   margin-left: -85px;
@@ -98,12 +98,12 @@ form.example button {
   cursor: pointer;
 }
 
-form.example button:hover {
+div.example button:hover {
   background: #0b7dda;
 }
 
 /* Clear floats */
-form.example::after {
+div.example::after {
   content: "";
   clear: both;
   display: table;

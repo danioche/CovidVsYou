@@ -1,14 +1,13 @@
 #!/bin/bash
 
-# This script will create based on folder /photos to an javascript
-# array object
+# This script will create a .js file with an array object based on folder /photos 
 
 photosNum=0
 ldt=`date`
 fOut="photos.js"
 
 echo "/* Javascript auto-generated $ldt */" > $fOut
-echo "export default function Photos(){" >> $fOut
+echo "function Photos(){" >> $fOut
 echo "   var data=[];" >> $fOut
 
 for pic in photos/*
@@ -22,4 +21,4 @@ done
 
 echo " return { list: data }; }" >> $fOut
 
-echo "/* Done! $photosNum image files found on ./photos directry */" >> $fOut
+echo "/* Done! $photosNum image files found on ./photos directory */" >> $fOut

@@ -4,5 +4,5 @@
 photos/*
 node_modules
 # ignoring back-up files
-*~
+*.*~
 

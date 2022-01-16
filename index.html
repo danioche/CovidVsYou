@@ -2,15 +2,13 @@
   <title>Covid versus You</title>
   <meta charset="UTF-8">
   <meta name="description" content="Covid versus You. How you survived/lived with the virus.">
-  <meta name="keywords" content="HTML, CSS, JavaScript">
-  <meta name="author" content="danioche">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="HTML, D3js, JavaScript, exif-js, node, npm">
+  <meta name="author" content="@danioche">
   
   <!-- Including the main Graph library -->
   <!--script src="https://d3js.org/d3.v7.min.js"></script-->
   <script src="https://d3js.org/d3.v6.js"></script>
 
-   
   <!-- Icon library -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   
@@ -18,18 +16,17 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="style-photos.css">
   
-
   <!-- Utils JS --> 
   <script language="javascript">
 
+    // Enabling Degub
+    var gDebug = false;
+    
     // Array for Searching
     var arrayDictDates = [];
     var arrayIMGObj = [];
     
-    /**
-     *  Mainly utils in javascript - old fashion
-     */
-    
+    /// Utils in javascript - old fashion way
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const months = ["January", "February", "March",
 		    "April", "May","June",
@@ -62,7 +59,7 @@
     
     function movePhoto( lx, ly ){
 	var e=document.getElementById("photoHolder");
-	e.style="visibility:visible;left: "+eval(lx-160)+"px;"; // top:"+ly+"px;";
+	e.style="visibility:visible;left: "+eval(lx-160)+"px;"; 
     }
 
     function hidePhoto(){
@@ -80,22 +77,23 @@
 	var t=document.getElementById("photoText");
 	var e2;
 	var sImgId=arrayIMGObj[ arrayDictDates[ sDate+"" ] ];
-
-	console.log("Searchig photos from "+ sDate );
-
+	var res = false;
+	
+	if (gDebug) console.log("Searchig photos from "+ sDate );
 	if (sImgId!=undefined){
-	    console.log("Encontrada foto en esta fecha!:"+ sImgId );
+	    
 	    try{
 		e2=document.getElementById( sImgId );
-		console.log("Voy a cambiar "+ e.src + " por "+ e2.src);
 		e.src=e2.src;
 		t.innerHTML = "Photo: "+ e2.src;
-		
+		res = true;
 	    }catch(myerr){
 		console.log("Error or not found: "+myerr.message);
+		res = false;
 	    }    
 	}
 	
+	return res;
     }
     
     // Timers and Event Listeners
@@ -105,7 +103,7 @@
 
 <body>
   
-  <!-- Main Containers -->
+  <!-- DOM Containers -->
   <div id="mainContainer" class="grid-container">
     <div class="headLeft">
       <div id="actionBox">
@@ -119,10 +117,10 @@
     </div>
     <div class="headRight">
       <div id="searchBox">
-	<form class="example" action="action_page.php">
-	  <input type="text" placeholder="Search..." name="search">
-	  <button type="submit"><i class="fa fa-search"></i></button>
-	</form>
+	<div class="example" action="return false;">
+	  <input type="text" placeholder="Search by date: yyyy-mm-dd format..." name="search" id="txtSearch">
+	  <button type="button" id="btnSearch"><i class="fa fa-search"></i></button>
+	</div>
       </div>
     </div>    
     <div id="graphContainer" class="main">
@@ -144,6 +142,8 @@
 
   <!-- Graph Resources and Data Loading -->
   <script language="javascript">
+
+    var globalDatasetInfo = { total:0, last: "" }; 
     
     // set the dimensions and margins of the graph
     const margin = {top: 30, right: 30, bottom: 70, left: 60},
@@ -168,68 +168,71 @@
             }
 	}).then(
 	    
-	function(data) {
-	    
-	    // X axis
-	    const x = d3.scaleTime()
-		  .domain( d3.extent(data, d => d.fecha ))
-		  .range([ 0, width ])
-	    svg.append("g")
-		.attr("transform", `translate(0, ${height})`)
-		.call(d3.axisBottom(x))
+	    function(data) {
+		
+		globalDatasetInfo.total = data.length;
+		globalDatasetInfo.last =  data[ data.length-1 ].fecha;
+		
+		// X axis
+		const x = d3.scaleTime()
+		      .domain( d3.extent(data, d => d.fecha ))
+		      .range([ 0, width ])
+		svg.append("g")
+		    .attr("transform", `translate(0, ${height})`)
+		    .call(d3.axisBottom(x))
 
-	    // Add Y axis
-	    const y = d3.scaleLinear()
-		  .domain([0, 70500])
-		  .range([ height, 0]);
-	    svg.append("g")
-		.call(d3.axisLeft(y));
+		// Add Y axis
+		const y = d3.scaleLinear()
+		      .domain([0, 160500])
+		      .range([ height, 0]);
+		svg.append("g")
+		    .call(d3.axisLeft(y));
 
-	    // Tooltip
-	    const tooltip = d3.select("#graphContainer")
-		  .append("div")
-		  .style("position", "absolute")
-		  .style("visibility", "hidden")
-		  .style("opacity", 0)
-		  .attr("class", "tooltip")
-		  .style("background-color", "white")
-		  .style("border", "solid")
-		  .style("border-width", "1px")
-		  .style("border-radius", "5px")
-		  .style("padding", "10px");
+		// Tooltip
+		const tooltip = d3.select("#graphContainer")
+		      .append("div")
+		      .style("position", "absolute")
+		      .style("visibility", "hidden")
+		      .style("opacity", 0)
+		      .attr("class", "tooltip")
+		      .style("background-color", "white")
+		      .style("border", "solid")
+		      .style("border-width", "1px")
+		      .style("border-radius", "5px")
+		      .style("padding", "10px");
 
-	    // Mouse events
-	    const mouseover = function(event, d) {
-		tooltip
-		    .style("visibility", "visible")
-		    .style("opacity", 1)
-	    }
-	    const mousemove = function(event, d) {
-		tooltip
-		    .html( date2str(d.fecha) + ": " + d.num_casos + "")
-		    .style("left", (event.pageX) + "px")
-		    .style("top", (event.pageY) + "px");
-		movePhoto( (event.pageX), (event.pageY) );
-		searchPhoto( d.fecha );
-	    }
-	    const mouseleave = function(event,d) {
-		tooltip
-		    .style("visibility","hidden");
-		hidePhoto();
-	    }
-	    
-	    // Bars
-	    svg.selectAll("myBar")
-		.data(data)
-		.join("rect")
-		.attr("x", d => x(d.fecha))
-		.attr("y", d => y(d.num_casos))
-		.attr("height", d => height - y(d.num_casos))
-	        .attr("width", 1 )
-		.attr("fill", "blue")
-		.on("mouseover", mouseover)
-		.on("mousemove", mousemove)
-		.on("mouseleave", mouseleave)
+		// Mouse events
+		const mouseover = function(event, d) {
+		    tooltip
+			.style("visibility", "visible")
+			.style("opacity", 1)
+		}
+		const mousemove = function(event, d) {
+		    tooltip
+			.html( date2str(d.fecha) + ": " + d.num_casos + "")
+			.style("left", (event.pageX) + "px")
+			.style("top", (event.pageY) + "px");
+		    movePhoto( (event.pageX), (event.pageY) );
+		    searchPhoto( d.fecha );
+		}
+		const mouseleave = function(event,d) {
+		    tooltip
+			.style("visibility","hidden");
+		    hidePhoto();
+		}
+		
+		// Bars
+		svg.selectAll("myBar")
+		    .data(data)
+		    .join("rect")
+		    .attr("x", d => x(d.fecha))
+		    .attr("y", d => y(d.num_casos))
+		    .attr("height", d => height - y(d.num_casos))
+	            .attr("width", 1 )
+		    .attr("fill", "lightblue")
+		    .on("mouseover", mouseover)
+		    .on("mousemove", mousemove)
+		    .on("mouseleave", mouseleave)
 	})
     
   </script>
@@ -261,31 +264,113 @@
 	x.setAttribute("height", "50px");
 	e.appendChild(x);
     }
-    
+
+    // Main call for extracting Metadata from images
     function getExif() {
 
 	render();
+	
 	for(let i=0; i<arrayIMG.length; i++){
             var img = document.getElementById("img"+i);
-	    EXIF.getData(img, function() {
-		var date = EXIF.getTag(this, "DateTimeDigitized");
-		var sDate = date.substring(0,10);
-		sDate = sDate.replace(/\:/g,"");
-		this.title = " Date: " + date;
-		
-		arrayDictDates[ sDate+"" ] = i;
 
-		
-		console.log("Array Dict guardamos fecha "+ sDate +
-			    "que pertenece a la imagen " + arrayDictDates[ sDate+"" ]);
-		console.log(sDate);
-            });
+	    EXIF.getData(img, function() {
+		try { 
+		    var date = EXIF.getTag(this, "DateTimeDigitized");
+		    var sDate = date.substring(0,10);
+		    sDate = sDate.replace(/\:/g,"");
+		    this.title = " Date: " + date;
+		    
+		    arrayDictDates[ sDate+"" ] = i;
+		    
+		    if (gDebug){
+			console.log("Array Dict saving photo date: "+ sDate +
+				" image url " + arrayDictDates[ sDate+"" ]);
+			console.log(sDate);
+		    }
+		    
+		}catch(myErr){
+		    console.log("No metadata for: " + this.src + " picture, skipping this IMG." );
+		    this.title = " No metadata! ";
+		}
+	    });
+	    
 	}
-	// Loading finish.
+	// Loading finish
 	var x=document.getElementById("loading");
 	// x.style="opacity:0;";
 	x.innerHTML = "Your photos, your life:";
     }
   </script>
+
+  <!-- Action buttons and Listeners -->
+
+  <script>
+
+    // CoVid button action
+    var btnCovid = document.getElementById("btnCovid");
+    btnCovid.addEventListener( "click",
+			       function(){
+
+				   alert(
+				       "Loaded "+ globalDatasetInfo.total +" days\n\r"+
+				       "Last day loaded on graph "+
+					   datetime2str(
+						     globalDatasetInfo.last
+						 ));
+				   
+    });
+
+    // Photos button action
+    var btnPhotos = document.getElementById("btnPhotos");
+    btnPhotos.addEventListener( "click",
+			       function(){
+
+				   alert(
+				       "Loaded "+ arrayIMG.length +" JPGs from /photos directory"
+				   );
+    });
+    
+    // Search input and button 
+    function fnTxtSearch(){
+	
+	var dtSearch;
+	
+	try{
+	    
+	    var sSearch = document.getElementById("txtSearch").value ;
+	    
+	    if(gDebug) console.log ("Searching box: "+ sSearch);
+	    
+	    dtSearch = new Date ( sSearch );
+	    
+	    if (!searchPhoto( dtSearch  )){
+		hidePhoto();
+	    }
+	
+	    var oPhoto = document.getElementById("photoHolder");	
+	    oPhoto.style = "visibility:visible;left: 40%;";
+	    
+	}catch(myErr){
+	    
+	    console.log (myErr.message);
+	}
+    }
+
+    var btnSearch = document.getElementById("btnSearch");
+    btnSearch.addEventListener( "click",
+				fnTxtSearch );
+    
+    var txtSearch = document.getElementById("txtSearch");
+    txtSearch.addEventListener( "keypress",
+				function(e){
+				    if(e.key == 'Enter'){
+					fnTxtSearch();
+					return false;
+				    }
+				}
+			      );
+    
+  </script>
+  
   <!-- Fin -->
 </body>
