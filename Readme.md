@@ -26,6 +26,9 @@ A simple project to visualize the Covid cases and how you cope this
 pandemic thanks to your photos. For me was a small project that made
 me think on what happened in 2021, kind of annual review/overview.
 
+
+![CovidVsYou - Screenshot](./screenshot.png)
+
 ## Getting Started
 
 If you are interested to play with this.
